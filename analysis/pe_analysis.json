@@ -1,0 +1,45 @@
+{
+ "input": "HSBR.exe",
+ "image_base": "0x400000",
+ "entry": "0x417C60",
+ "functions": 2814,
+ "named": 1629,
+ "segments": [
+  {
+   "name": ".text",
+   "start": "0x401000",
+   "end": "0x451000",
+   "class": "CODE"
+  },
+  {
+   "name": ".rdata",
+   "start": "0x451000",
+   "end": "0x464000",
+   "class": "DATA"
+  },
+  {
+   "name": ".data",
+   "start": "0x464000",
+   "end": "0x470000",
+   "class": "DATA"
+  },
+  {
+   "name": ".idata",
+   "start": "0x470000",
+   "end": "0x47079C",
+   "class": "DATA"
+  },
+  {
+   "name": ".idata",
+   "start": "0x47079C",
+   "end": "0x470E48",
+   "class": "XTRN"
+  },
+  {
+   "name": ".idata",
+   "start": "0x470E48",
+   "end": "0x473000",
+   "class": "DATA"
+  }
+ ]
+}

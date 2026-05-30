@@ -1,0 +1,26 @@
+# Game data — never commit (copyrighted)
+*.exe
+*.dll
+*.mdf
+*.mds
+*.iso
+disc_image/
+game_files/
+analysis/*.exe
+
+# IDA databases
+*.i64
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+
+# Build
+build/
+*.obj
+*.o
+
+# OS
+Thumbs.db
+.DS_Store
