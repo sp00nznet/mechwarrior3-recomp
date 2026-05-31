@@ -9,7 +9,7 @@ that a call-graph sweep would miss (cf. the Crimson Skies vtable gap).
 
 Usage: python run_pipeline.py [analysis/HSBR.exe] [src/recomp/gen]
 """
-import sys, os, json, time, struct
+import sys, os, json, time, struct, re
 
 _here = os.path.dirname(os.path.abspath(__file__))
 _pc = os.path.join(_here, 'tools', 'pcrecomp', 'tools')
@@ -71,6 +71,13 @@ def lift_function_linear(lifter, name, instructions, leaders):
         for line in lifter.lift_instruction(insn): lines.append(f'    {line}')
     if instructions and not instructions[-1].is_ret:
         lines.append('    return; /* end of function */')
+    # Cross-function jumps reference labels outside this function's range; emit them
+    # as indirect tail-calls so the C compiles and dispatch handles them at runtime.
+    body = '\n'.join(lines)
+    defined = set(re.findall(r'(?m)^\s*(L_[0-9A-Fa-f]{8})\s*:', body))
+    refed = set(re.findall(r'goto\s+(L_[0-9A-Fa-f]{8})', body))
+    for lbl in sorted(refed - defined):
+        lines.append(f'    {lbl}: RECOMP_ITAIL(0x{int(lbl[2:],16):08X}u); return;')
     lines.append('}')
     return '\n'.join(lines)
 

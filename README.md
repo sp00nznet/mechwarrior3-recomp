@@ -24,7 +24,8 @@ This is a game-preservation project. MechWarrior 3 runs on the Zipper Interactiv
 |-------|--------|-------------|
 | **Phase 0** | **Complete** | Disc extraction (MDF→ISO), binary triage, **IDA-seeded function discovery** |
 | **Phase 1** | **Complete** | x86→C code generation — **2,805 functions, 0 lift errors**, 158K lines |
-| Phase 2 | Pending | Compilation & linking (needs C toolchain + runtime bringup) |
+| **Phase 2** | **Complete** | Compilation — **all 7 translation units compile** (MSVC x86, 0 errors) as a static lib |
+| Phase 3 | Pending | Executable link: Win32/MFC42 runtime, register/memory model, import bridges |
 | Phase 3 | Pending | Runtime bringup — CRT init, MFC42 bridges, imports |
 | Phase 4 | Pending | Win32/DirectX 6 HAL (DDraw/D3D/DInput/DSound COM mocks) |
 | Phase 5 | Pending | GOS engine abstraction — rendering, audio, input |
