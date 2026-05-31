@@ -24,6 +24,12 @@ from capstone.x86 import X86_OP_IMM
 COND_JUMPS = {'je','jne','jz','jnz','ja','jae','jb','jbe','jg','jge','jl','jle',
               'js','jns','jo','jno','jp','jnp','jcxz','jecxz'}
 
+# The lifter emits FPU-compare branches as 1-arg CMP_xx(_fpu_cmp), but CMP_xx are
+# 2-arg integer-flag macros. _fpu_cmp is -1/0/1 (less/equal/greater), so rewrite
+# the 1-arg forms to a direct comparison against 0.
+FPU_CMP = {'EQ':'==','NE':'!=','B':'<','BE':'<=','A':'>','AE':'>=',
+           'L':'<','LE':'<=','G':'>','GE':'>='}
+
 
 class LinearInstruction:
     __slots__ = ['address','size','mnemonic','op_str','bytes','operands',
@@ -79,7 +85,10 @@ def lift_function_linear(lifter, name, instructions, leaders):
     for lbl in sorted(refed - defined):
         lines.append(f'    {lbl}: RECOMP_ITAIL(0x{int(lbl[2:],16):08X}u); return;')
     lines.append('}')
-    return '\n'.join(lines)
+    out = '\n'.join(lines)
+    out = re.sub(r'CMP_(\w+)\(_fpu_cmp\)',
+                 lambda m: f'((_fpu_cmp) {FPU_CMP.get(m.group(1), "==")} 0)', out)
+    return out
 
 
 def write_chunk(out, idx, funcs):
