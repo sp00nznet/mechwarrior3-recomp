@@ -23,8 +23,8 @@ This is a game-preservation project. MechWarrior 3 runs on the Zipper Interactiv
 | Phase | Status | Description |
 |-------|--------|-------------|
 | **Phase 0** | **Complete** | Disc extraction (MDF→ISO), binary triage, **IDA-seeded function discovery** |
-| Phase 1 | Pending | x86→C code generation |
-| Phase 2 | Pending | Compilation & linking |
+| **Phase 1** | **Complete** | x86→C code generation — **2,805 functions, 0 lift errors**, 158K lines |
+| Phase 2 | Pending | Compilation & linking (needs C toolchain + runtime bringup) |
 | Phase 3 | Pending | Runtime bringup — CRT init, MFC42 bridges, imports |
 | Phase 4 | Pending | Win32/DirectX 6 HAL (DDraw/D3D/DInput/DSound COM mocks) |
 | Phase 5 | Pending | GOS engine abstraction — rendering, audio, input |
@@ -60,6 +60,27 @@ Regenerate with the [ida-recomp-toolkit](https://github.com/sp00nznet/ida-recomp
 ```
 py -3.11 tools/mw3_bootstrap.py HSBR.exe config/ analysis/
 ```
+
+## Phase 1: x86 → C code generation
+
+`run_pipeline.py` lifts every function in `config/functions.json` to C using the
+shared `pcrecomp` lifter (Capstone-based), **seeding entries from the IDA list** so
+all 950 virtual methods are lifted from the start:
+
+| Result | Value |
+|--------|-------|
+| Functions lifted | **2,805** |
+| Lift errors | **0** |
+| Output | 158,645 lines of C, 7.2 MB, 6 files |
+
+```
+py -3.11 run_pipeline.py            # -> src/recomp/gen/recomp_*.c
+```
+
+The generated `src/recomp/gen/` is **not committed** (regenerable from `HSBR.exe` +
+the function list). Phase 2 will add a CMake C build + the Win32/MFC42 runtime
+bridges (the lifter and `recomp_types.h` are the same ones Crimson Skies already
+compiles cleanly).
 
 ## Layout
 

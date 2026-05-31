@@ -24,3 +24,8 @@ build/
 # OS
 Thumbs.db
 .DS_Store
+
+# Generated (regenerable from HSBR.exe + run_pipeline.py)
+src/recomp/gen/
+__pycache__/
+*.pyc
