@@ -17,7 +17,7 @@ public class ExportFunctions extends GhidraScript {
 
     @Override
     public void run() throws Exception {
-        String outputDir = "D:/recomp/pc/gunman/disasm";
+        String outputDir = "$RECOMP_ROOT/pc/gunman/disasm";
         String progName = currentProgram.getName().replace(".dll", "").replace(".exe", "");
         String outputPath = outputDir + "/" + progName + "_functions.txt";
 

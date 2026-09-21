@@ -110,7 +110,7 @@ def parse_pe_imports(filepath):
     return imports
 
 # Analyze all game executables
-game_dir = r'D:\recomp\pc\sof\_work\game'
+game_dir = r'$RECOMP_ROOT\pc\sof\_work\game'
 executables = [
     'SoF.exe',
     'gamex86.dll',

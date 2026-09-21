@@ -10,8 +10,8 @@ import os
 import re
 from collections import defaultdict
 
-SDK_PATH = "D:/recomp/pc/gunman/ref/halflife-sdk"
-DISASM_PATH = "D:/recomp/pc/gunman/disasm"
+SDK_PATH = "$RECOMP_ROOT/pc/gunman/ref/halflife-sdk"
+DISASM_PATH = "$RECOMP_ROOT/pc/gunman/disasm"
 
 
 def build_sdk_string_index(sdk_path):

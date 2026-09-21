@@ -13,8 +13,8 @@ import re
 import sys
 from collections import defaultdict
 
-SDK_PATH = "D:/recomp/pc/gunman/ref/halflife-sdk"
-DISASM_PATH = "D:/recomp/pc/gunman/disasm"
+SDK_PATH = "$RECOMP_ROOT/pc/gunman/ref/halflife-sdk"
+DISASM_PATH = "$RECOMP_ROOT/pc/gunman/disasm"
 
 
 def extract_sdk_entities(sdk_path):
