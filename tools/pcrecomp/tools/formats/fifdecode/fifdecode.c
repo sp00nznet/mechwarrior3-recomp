@@ -44,7 +44,6 @@ static LONG CALLBACK crash_handler(PEXCEPTION_POINTERS info)
 static const char *dll_search_paths[] = {
     "DECO_32.DLL",
     ".\\DECO_32.DLL",
-    "C:\\encarta\\analysis\\DECO_32.DLL",
     "F:\\AAMSSTP\\ENCARTA\\DECO_32.DLL",
     NULL
 };
