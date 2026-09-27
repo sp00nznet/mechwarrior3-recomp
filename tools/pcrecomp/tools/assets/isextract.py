@@ -195,7 +195,11 @@ class ISCabinet:
     def _read_string(self, ft_relative_offset):
         """Read a null-terminated string from the file table area."""
         abs_offset = self._ft_base + ft_relative_offset
-        end = self.hdr_data.index(b'\x00', abs_offset)
+        if abs_offset < 0 or abs_offset >= len(self.hdr_data):
+            return ""
+        end = self.hdr_data.find(b'\x00', abs_offset)
+        if end < 0:
+            end = abs_offset
         return self.hdr_data[abs_offset:end].decode('ascii', errors='replace')
 
     def _parse_file_groups(self):
