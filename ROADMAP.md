@@ -5,9 +5,15 @@ is in the README's Status section and in `docs/`.
 
 ## Next
 
-- **First `--run`.** Enter the CRT startup on a display (at the console under
-  offstage), and record how far MFC's `AfxWinMain` and the game's
-  `InitInstance` get. Each new stage becomes a conformance milestone.
+- **Past the first surface `Unlock`.** The game asks for 640x480x16
+  fullscreen. This display has only 32-bit modes, so `SetDisplayMode` fails
+  (`E_NOTIMPL`) until Windows applies `DWM8And16BitMitigation` (it does so
+  on its own after the first failure), and then the first `Unlock` crashes
+  in `nvd3dum.dll` (read of `0xFFBADBAD`). Not a lift bug. The fix is the
+  host-side DirectDraw below; a drop-in wrapper (DDrawCompat, dgVoodoo) in
+  `game\` would show how far the lift gets meanwhile. The game writes its
+  own log to `game\mech3.out` and reopens stderr as `game\mech3.err`, so
+  traces land there.
 - **Headless mode** (`--headless --record out.mp4`), required of every recomp
   by the house style. MechWarrior 3 draws through DirectDraw and Direct3D 6,
   so this needs a host-side DirectDraw like Virtual Springfield's

@@ -27,6 +27,17 @@ The project starts over on the right binary and today's pcrecomp.
 - CI (build checks without the game), a recomp-netlab recipe,
   `docs/architecture.md`, ROADMAP, CONTRIBUTING and NOTICE.
 
+- First `--run`: the lift boots through the CRT, MFC's `AfxWinMain` and the
+  game's `InitInstance`, reads its options, opens its window, enumerates
+  Direct3D and every subsystem init passes. It stops in the first
+  DirectDraw surface `Unlock`, inside NVIDIA's driver, under Windows'
+  16-bit DirectDraw emulation (ROADMAP).
+- Host fixes found on the way: MFC42's own `GetModuleFileNameA` answers for
+  the guest's handle; the game folder is the CD drive; the installer's
+  `InstallOptions` key comes from HKCU; the Indeo 5 codec is installed for
+  the process; the guest gets its own `lpCmdLine`; stderr is unbuffered and
+  a fault names its module.
+
 ### Changed
 - **The game is `Mech3.exe`, not `HSBR.exe`.** v0.1 catalogued and lifted
   `HSBR.exe` from the disc root, which is the Hasbro launcher (no DirectX

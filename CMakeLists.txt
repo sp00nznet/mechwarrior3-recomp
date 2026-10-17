@@ -52,7 +52,7 @@ if(MSVC_VERSION GREATER_EQUAL 1950)
 endif()
 set_source_files_properties(${GEN_SOURCES} PROPERTIES COMPILE_OPTIONS "/w;${GEN_OPT}")
 set_source_files_properties(src/runtime/host.c PROPERTIES COMPILE_OPTIONS "/W3")
-target_link_libraries(mw3 PRIVATE user32 gdi32 kernel32 advapi32)
+target_link_libraries(mw3 PRIVATE user32 gdi32 kernel32 advapi32 vfw32)
 
 option(MW3_TRACE "record a ring buffer of lifted function entries" OFF)
 if(MW3_TRACE)
