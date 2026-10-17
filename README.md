@@ -1,97 +1,143 @@
 # MechWarrior 3 — Static Recompilation
 
-A static recompilation of **MechWarrior 3** (1999, Zipper Interactive / Hasbro
-Interactive / MicroProse), targeting modern Windows with native x86 execution.
+Static recompilation of **MechWarrior 3** (Zipper Interactive / MicroProse /
+Hasbro Interactive, 1999), from its shipping Win32 executable to native C that
+builds on Windows 10 and 11.
 
-This is a game-preservation project. MechWarrior 3 runs on the Zipper Interactive
-**GameZ/GOS engine** — the same engine as **Crimson Skies** (2000) and **Recoil**
-(1999). Tooling and findings carry across all three.
+Built on the [pcrecomp](https://github.com/sp00nznet/pcrecomp) toolchain and
+following its shared house style (layout, CLI, conformance harness). Generated
+source is **not** distributed: you bring your own disc and the pipeline
+rebuilds everything locally.
 
-> *"Pilot. The 'Mech is ready."*
+## Status: **v0.2.0-dev, early bring-up. The whole game lifts and builds; it has not been run yet.**
 
-## Why this game
+| Stage | State |
+|---|---|
+| Identify the binary | `Mech3.exe` (VC6 + MFC42, DirectX 6, no protection). `HSBR.exe`, which v0.1 lifted, turned out to be the Hasbro launcher ([docs/architecture.md](docs/architecture.md)) |
+| Game files | unpacked from your disc, ISO or MDF by `tools/gamefiles.py`, with no installer and no registry |
+| Function catalog (`disasm32`, no IDA) | 15,923 functions, 94.7% of the code bytes, about 2 minutes |
+| Lift (`run_lift.py`) | **whole program**: 15,930 functions, 0 lift errors, 2.53M lines of C. pcrecomp `main`, no toolkit change |
+| Host (`build/mw3.exe`, 32-bit, pcrecomp `native32`) | builds (netlab clang-cl, 4.5 min cold). Maps Mech3.exe and binds all 472 imports: 461 to the real Windows, DirectX and MFC42 DLLs, 11 shimmed, 0 unresolved |
+| Running the game | not tried yet: see [ROADMAP.md](ROADMAP.md) |
 
-- **Shared GOS engine.** Cross-validation tooling, the function-discovery approach,
-  and even some engine structures are common with Crimson Skies and Recoil.
-- **Clean binary.** Unlike Crimson Skies and X-Wing Alliance (both SafeDisc, needing
-  runtime memory dumps), MW3's `HSBR.exe` is **not encrypted** — it analyzes directly.
-- **VC6 / MFC.** Visual C++ 6.0 with MFC42 + DirectX 6, so IDA's FLIRT signatures name
-  a large fraction of the library surface for free.
+Conformance (`tools/conformance.py`, figures in `conformance.json`):
+**2/4 milestones** (the two a dry run can reach; the other two need `--run` on a display). Lift health: 0 errors, 63 functions with no terminator, 1 unresolvable ITAIL target, 12 UNIMPLEMENTED instructions.
 
-## Project status
+## Screenshots
 
-| Phase | Status | Description |
-|-------|--------|-------------|
-| **Phase 0** | **Complete** | Disc extraction (MDF→ISO), binary triage, **IDA-seeded function discovery** |
-| **Phase 1** | **Complete** | x86→C code generation — **2,805 functions, 0 lift errors**, 158K lines |
-| **Phase 2** | **Complete** | Compilation — **all 7 translation units compile** (MSVC x86, 0 errors) as a static lib |
-| Phase 3 | Pending | Executable link: Win32/MFC42 runtime, register/memory model, import bridges |
-| Phase 3 | Pending | Runtime bringup — CRT init, MFC42 bridges, imports |
-| Phase 4 | Pending | Win32/DirectX 6 HAL (DDraw/D3D/DInput/DSound COM mocks) |
-| Phase 5 | Pending | GOS engine abstraction — rendering, audio, input |
-| Phase 6 | Pending | Asset loading |
-| Phase 7+ | Pending | Mission/sim logic, modern rendering backend |
+None yet: the game has not been run. The first ones will come from a recorded
+run (`offstage run --record`) and go in `docs/screenshots/`.
 
-## Binary
+## What is not in this repo
 
-| Property | Value |
-|----------|-------|
-| **Target** | `HSBR.exe` (2.26 MB) |
-| **Compiler** | Visual C++ 6.0 + MFC42, DirectX 6 |
-| **Architecture** | x86-32, PE32, image base `0x00400000` |
-| **Code (.text)** | `0x00401000` – `0x00451000` (~320 KB) |
-| **Entry point** | `0x00417C60` |
-| **DRM** | none on `HSBR.exe` (clean) |
+The game, and anything made from it. `game/` (your install), `work/` (the
+catalog and the lift statistics) and `src/recomp/gen/` (the lifted C) are
+built on your machine and gitignored. See [NOTICE](NOTICE).
 
-## Phase 0: IDA-seeded discovery
+## Getting Started
 
-Function discovery was bootstrapped with **IDA Pro 9.1** rather than a call-graph
-sweep. This matters: IDA follows **vtables**, so virtual methods reached only through
-a vtable pointer are captured from the start. (On the sister project Crimson Skies,
-call-graph discovery missed ~770 such virtual methods — this scaffold avoids that gap.)
+You need your **MechWarrior 3 CD** (in a drive, or as an `.iso` or `.mdf`
+image), Windows 10 or 11, and about 3 GB free.
 
-| Artifact | Value |
-|----------|-------|
-| `config/functions.json` | **2,814** functions |
-| `config/ida_names.txt` | **1,629** FLIRT-identified names (MFC42 / VC6 CRT / std) |
-| `analysis/vtables.json` | **168** vtables → **950** virtual methods (**all 950** in functions.json) |
-| `analysis/pe_analysis.json` | sections / entry / base |
+### Quick start
 
-Regenerate with the [ida-recomp-toolkit](https://github.com/sp00nznet/ida-recomp-toolkit):
+1. Download this repository and [pcrecomp](https://github.com/sp00nznet/pcrecomp)
+   side by side, with pcrecomp in a folder named `tools`:
+   ```
+   somewhere\mechwarrior3-recomp\
+   somewhere\tools\              <- pcrecomp
+   ```
+   (If `tools` is missing, Setup offers to fetch it with git.)
+2. Double-click **`Setup.cmd`**. It checks for Python, the Python packages,
+   Visual Studio, CMake and Ninja, and asks before installing anything
+   missing. It then finds your disc, or asks for its path, unpacks it into
+   `game\`, catalogs, lifts and builds. Expect 20 to 40 minutes the first
+   time. A rerun skips what is done.
+3. When it says **Done**, `MechWarrior 3 (recomp).cmd` is in the folder.
+   Expect early bring-up: see Status.
+
+If it stops, it says why in one line, and the full log is `setup.log`.
+
+### Step by step
+
+Prerequisites: **Python 3.10+** with `pefile` and `capstone`, **Visual Studio
+2022** (or its Build Tools) with *Desktop development with C++*, **CMake
+3.20+** and **Ninja**. These are exactly the commands Setup runs.
+
+```bat
+:: 0. the toolkit, beside this repo
+git clone https://github.com/sp00nznet/pcrecomp ..\tools
+py -3 -m pip install --user pefile capstone
+
+:: 1. your disc -> game\   (a drive, a folder, an .iso or an .mdf)
+py -3 tools\gamefiles.py D:\path\to\MW3.mdf
+::   reading 303 files (519 MB) from D:\path\to\MW3.mdf
+::   ...
+::   done: ...\game
+
+:: 2. the function catalog -> work\functions.json
+py -3 tools\catalog.py
+::   [*] Functions: 15923  (thunks=275, leaves=6368)
+::   [*] Byte coverage: 1,690,437 / 1,785,344 (94.7% of code range)
+
+:: 3. the lift -> src\recomp\gen\
+py -3 run_lift.py
+::   lifted 15930   errors 0   no terminator 63
+::   2,529,059 lines of C in 40 files
+
+:: 4. the host -> build\mw3.exe
+build.cmd
+
+:: 5. map and bind Mech3.exe (no window)
+build\mw3.exe
 ```
-py -3.11 tools/mw3_bootstrap.py HSBR.exe config/ analysis/
-```
 
-## Phase 1: x86 → C code generation
+The usual trip-ups:
 
-`run_pipeline.py` lifts every function in `config/functions.json` to C using the
-shared `pcrecomp` lifter (Capstone-based), **seeding entries from the IDA list** so
-all 950 virtual methods are lifted from the start:
+- **`python` opens the Microsoft Store.** That is the Store's placeholder.
+  Use `py -3`, or turn off the alias under *Settings > Apps > Advanced app
+  settings > App execution aliases*.
+- **A tool installed but "not found".** PATH changes reach new windows only:
+  open a new terminal.
+- **pcrecomp somewhere else.** Set `PCRECOMP` to its folder before steps 1-3,
+  and run `set CMAKE_ARGS=-DPCRECOMP=<folder>` before step 4.
+- **`build.cmd` uses the 64-bit-hosted x86 compiler** (`amd64_x86`): the
+  32-bit `cl.exe` runs out of heap on a 400-function chunk.
 
-| Result | Value |
-|--------|-------|
-| Functions lifted | **2,805** |
-| Lift errors | **0** |
-| Output | 158,645 lines of C, 7.2 MB, 6 files |
-
-```
-py -3.11 run_pipeline.py            # -> src/recomp/gen/recomp_*.c
-```
-
-The generated `src/recomp/gen/` is **not committed** (regenerable from `HSBR.exe` +
-the function list). Phase 2 will add a CMake C build + the Win32/MFC42 runtime
-bridges (the lifter and `recomp_types.h` are the same ones Crimson Skies already
-compiles cleanly).
-
-## Layout
+## Usage
 
 ```
-config/     functions.json, ida_names.txt    (the recomp's function table — committed)
-analysis/   pe_analysis.json, vtables.json    (derived binary metadata — committed)
-src/        recompiled / HAL / engine sources (to be generated)
-tools/      project-specific scripts
-docs/       analysis notes & handoffs
+build\mw3.exe                       map Mech3.exe and bind its imports, then stop
+build\mw3.exe --run                 run the game (opens its window)
+build\mw3.exe --run --watchdog 30   ...and stop after 30 s with a report of where it is
+build\mw3.exe --game D:\mw3         use an install somewhere other than game\
+build\mw3.exe --native-trace        one line per call into Windows or DirectX
+build\mw3.exe --callbacks           one line per call from Windows back into the game
+py -3 tools\conformance.py [--run]  the conformance harness
 ```
 
-> **Game data is not in this repo.** `HSBR.exe`, the disc image (`.mdf`/`.iso`), and
-> any extracted assets are `.gitignore`d. Supply your own legally-obtained copy.
+A fault prints the lifted function it happened in, the last native call, the
+registers and the last indirect calls.
+
+`--headless --record out.mp4`, the house style's headless mode, is not in
+yet ([ROADMAP.md](ROADMAP.md)).
+
+## Building from source
+
+Steps 2 to 4 above are the whole build. On a machine with
+[recomp-netlab](https://github.com/sp00nznet/recomp-netlab), `netlab build
+mechwarrior3-recomp` compiles on the farm instead (recipe
+`projects/mechwarrior3-recomp.env`). The lifted C goes over, and the game does
+not.
+
+[docs/architecture.md](docs/architecture.md) explains how the parts fit.
+
+## Contributors
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). No outside contributions yet.
+
+## License
+
+MIT for what is ours (the host, the tools, the docs): [LICENSE](LICENSE).
+MechWarrior 3 itself is not covered, and lifted code carries the original's
+licence, not this one: [NOTICE](NOTICE).

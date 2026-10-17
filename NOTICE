@@ -1,0 +1,21 @@
+The MIT licence in LICENSE covers what is actually ours in this repository:
+the host, the tools, the setup script and the documentation. It does NOT
+cover MechWarrior 3 itself.
+
+MechWarrior 3 is (c) 1999 Zipper Interactive, MicroProse and Hasbro
+Interactive; MechWarrior is a trademark of its current owner. It is not ours
+to license. Its executables, DLLs, data archives and videos are not in this
+repository and are excluded by .gitignore.
+
+Two consequences worth being explicit about:
+
+  * You need your own copy of the game to use any of this. Setup.cmd unpacks
+    your disc into game/; the pipeline reads it from there.
+
+  * Lifted code is a derivative work of the binary it came from. Anything
+    this pipeline emits into work/ or src/recomp/gen/ carries whatever
+    licence the original carries, not this one. The MIT grant stops at our
+    own work.
+
+This repository carries no third-party code. The toolkit, pcrecomp, is a
+separate checkout beside this one and keeps its own licence.

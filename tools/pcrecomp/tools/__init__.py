@@ -1,1 +1,0 @@
-# XWA Static Recompilation Toolchain

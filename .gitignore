@@ -1,31 +1,66 @@
-# Game data — never commit (copyrighted)
+# Build output
+build/
+build-*/
+out/
+cmake-build-*/
+*.obj
+*.o
+*.lib
+*.pdb
+*.ilk
+*.exp
+
+# IDE
+.vs/
+.vscode/
+*.user
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# --- Original game files: NOT redistributed in this repo ---
+# MechWarrior 3 (c) 1999 Zipper Interactive / MicroProse / Hasbro Interactive.
+# Bring your own copy; Setup.cmd unpacks it into game/.
+game/
+disc_image/
+game_files/
 *.exe
+*.EXE
 *.dll
+*.DLL
 *.mdf
 *.mds
 *.iso
-disc_image/
-game_files/
-analysis/*.exe
+*.bin
+*.cue
+*.7z
+*.zip
+*.zbd
+*.avi
 
-# IDA databases
+# Derived from the game binary, never committed (REPO_RULES section 3): the
+# generated C, the function catalog, PE/RTTI analysis, lift statistics, run
+# logs and recordings. They are rebuilt locally by Setup.cmd.
+src/recomp/gen/
+work/
+analysis/
+scratch/
 *.i64
 *.id0
 *.id1
 *.id2
 *.nam
 *.til
+*.mp4
+*.bmp
+*.log
 
-# Build
-build/
-*.obj
-*.o
+# Made by Setup.cmd
+MechWarrior 3 (recomp).cmd
 
 # OS
 Thumbs.db
+Desktop.ini
 .DS_Store
-
-# Generated (regenerable from HSBR.exe + run_pipeline.py)
-src/recomp/gen/
-__pycache__/
-*.pyc

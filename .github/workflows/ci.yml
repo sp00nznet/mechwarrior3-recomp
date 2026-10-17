@@ -1,0 +1,33 @@
+# What CI can check without the game (which is never in the repo): the Python
+# tools compile, the conformance harness takes its no-corpus path, and the host
+# compiles for x86 against pcrecomp's native32 with warnings as errors.
+# Linking needs the generated C, which only a local run of the pipeline on
+# your own copy produces.
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: sp00nznet/pcrecomp
+          path: pcrecomp
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Python compiles
+        run: python -m py_compile run_lift.py tools/catalog.py tools/conformance.py tools/gamefiles.py
+      - name: Conformance (skips without the game)
+        run: python tools/conformance.py
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x86
+      - name: host compiles (x86, /W3 /WX)
+        run: cl /nologo /c /W3 /WX /D_CRT_SECURE_NO_WARNINGS /Isrc/runtime /Ipcrecomp/runtime/native32 /Ipcrecomp/runtime/recomp32 src/runtime/host.c
